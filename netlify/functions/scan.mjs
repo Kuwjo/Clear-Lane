@@ -42,9 +42,9 @@ export default async (req) => {
     parts.push({ inline_data: { mime_type: type, data: im.data } });
   }
 
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
   const generationConfig = { temperature: 0.2, response_mime_type: "application/json" };
-  if (/flash/i.test(model)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
+  if (/2\.5-flash/i.test(model)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
 
   let r, j;
   try {

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3A95FF"/>
+      <stop offset="1" stop-color="#0043C8"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.3" cy="0.12" r="0.75">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#001A55" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+  <g filter="url(#sh)" fill="#FFFFFF">
+    <line x1="282" y1="530" x2="450" y2="700" stroke="#FFFFFF" stroke-width="128" stroke-linecap="round"/>
+    <circle cx="450" cy="700" r="70"/>
+    <polygon points="502.9,745.8 397.1,654.2 747.3,310.4 792.7,349.6"/>
+    <circle cx="770" cy="330" r="30"/>
+  </g>
+  <g stroke="#1F6CF0" stroke-linecap="round">
+    <line x1="488.4" y1="655.6" x2="533.2" y2="603.8" stroke-width="17"/>
+    <line x1="565.2" y1="566.8" x2="600.4" y2="526.1" stroke-width="14"/>
+    <line x1="629.2" y1="492.8" x2="654.8" y2="463.2" stroke-width="11"/>
+    <line x1="680.4" y1="433.6" x2="699.6" y2="411.4" stroke-width="8"/>
+  </g>
+</svg>

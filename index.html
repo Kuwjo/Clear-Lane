@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ClearLane">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="favicon.png" sizes="32x32">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head><body>
+<title>ClearLane</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: iOS-style app shell. Sticky translucent nav bar, large titles, inset grouped lists, fixed tab bar, bottom sheets. */
+:root{
+  --bg:#F2F2F7; --card:#FFFFFF; --card2:#F2F2F7; --paper:#F2F2F7;
+  --label:#000000; --label2:rgba(60,60,67,.6); --label3:rgba(60,60,67,.3);
+  --sep:rgba(60,60,67,.29); --fill:rgba(120,120,128,.12); --fill2:rgba(120,120,128,.16); --press:rgba(0,0,0,.08);
+  --bar:rgba(249,249,249,.86); --segthumb:#FFFFFF; --alert:rgba(242,242,242,.92);
+  --blue:#007AFF; --green:#34C759; --orange:#FF9500; --red:#FF3B30; --pink:#FF2D55; --purple:#AF52DE;
+  --indigo:#5856D6; --teal:#30B0C7; --mint:#00C7BE; --brown:#A2845E; --gray:#8E8E93;
+  --v-green:#248A3D; --v-red:#D70015; --v-stop:#1C1C1E; --v-review:#636366;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font-d:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",system-ui,"Segoe UI",Roboto,sans-serif;
+  --ease:cubic-bezier(.32,.72,0,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#000000; --card:#1C1C1E; --card2:#2C2C2E; --paper:#2C2C2E;
+  --label:#FFFFFF; --label2:rgba(235,235,245,.6); --label3:rgba(235,235,245,.3);
+  --sep:rgba(84,84,88,.65); --fill:rgba(118,118,128,.24); --fill2:rgba(120,120,128,.36); --press:rgba(255,255,255,.1);
+  --bar:rgba(22,22,23,.86); --segthumb:#636366; --alert:rgba(37,37,37,.94);
+  --blue:#0A84FF; --green:#30D158; --orange:#FF9F0A; --red:#FF453A; --pink:#FF375F; --purple:#BF5AF2;
+  --indigo:#5E5CE6; --teal:#40C8E0; --mint:#63E6E2; --brown:#AC8E68; --gray:#8E8E93;
+  --v-green:#248A3D; --v-red:#D70015; --v-stop:#2C2C2E; --v-review:#48484A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#000000; --card:#1C1C1E; --card2:#2C2C2E; --paper:#2C2C2E;
+  --label:#FFFFFF; --label2:rgba(235,235,245,.6); --label3:rgba(235,235,245,.3);
+  --sep:rgba(84,84,88,.65); --fill:rgba(118,118,128,.24); --fill2:rgba(120,120,128,.36); --press:rgba(255,255,255,.1);
+  --bar:rgba(22,22,23,.86); --segthumb:#636366; --alert:rgba(37,37,37,.94);
+  --blue:#0A84FF; --green:#30D158; --orange:#FF9F0A; --red:#FF453A; --pink:#FF375F; --purple:#BF5AF2;
+  --indigo:#5E5CE6; --teal:#40C8E0; --mint:#63E6E2; --brown:#AC8E68; --gray:#8E8E93;
+  --v-green:#248A3D; --v-red:#D70015; --v-stop:#2C2C2E; --v-review:#48484A; color-scheme:dark}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--label);font-family:var(--font);font-size:17px;line-height:22px;letter-spacing:-.41px;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bar);z-index:30}
+button{font:inherit;color:inherit;letter-spacing:inherit}
+button:focus-visible,a:focus-visible,.sw input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+.sym{width:1em;height:1em;flex:none}
+
+/* Nav bar */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;height:44px;transition:background .2s}
+.nav-in{max-width:720px;margin:0 auto;height:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.nav.scrolled{background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 .5px 0 var(--sep)}
+.nav-title{font-weight:600;opacity:0;transition:opacity .2s}
+.nav.scrolled .nav-title{opacity:1}
+.nav-r{justify-self:end}
+.nav-btn{border:0;background:none;color:var(--blue);width:44px;height:44px;display:grid;place-items:center;cursor:pointer;margin-right:-10px;font-size:24px}
+
+/* Content */
+main{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 calc(84px + env(safe-area-inset-bottom,0px))}
+.screen{display:flex;flex-direction:column;gap:30px}
+.screen.enter{animation:fade .28s var(--ease)}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+.large{font-family:var(--font-d);font-size:34px;line-height:41px;font-weight:700;letter-spacing:.37px;margin:2px 0 -16px;padding-left:4px}
+.sec{display:flex;flex-direction:column}
+.sh{font-size:13px;line-height:18px;letter-spacing:-.08px;text-transform:uppercase;color:var(--label2);padding:0 16px 7px}
+.sf{font-size:13px;line-height:18px;letter-spacing:-.08px;color:var(--label2);padding:7px 16px 0}
+.sf a{color:var(--blue);text-decoration:none}
+.group{background:var(--card);border-radius:12px;overflow:hidden}
+.row{position:relative;display:flex;align-items:center;gap:12px;min-height:44px;padding:11px 16px;width:100%;border:0;background:transparent;color:var(--label);text-align:left;text-decoration:none}
+button.row,a.row,label.row{cursor:pointer}
+button.row:active,a.row:active{background:var(--press)}
+.row+.row::before{content:"";position:absolute;top:0;right:0;left:16px;border-top:.5px solid var(--sep)}
+.group.icons>.row+.row::before{left:57px}
+.group.big>.row+.row::before{left:64px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.t{font-size:17px;line-height:22px}
+.s{font-size:15px;line-height:20px;letter-spacing:-.24px;color:var(--label2)}
+.v{color:var(--label2);white-space:nowrap}
+.chev{color:var(--label3);font-size:14px}
+.row.action .t,.row.action{color:var(--blue)}
+.row.danger .t,.row.danger{color:var(--red)}
+.row.center{justify-content:center}
+.row.col{flex-direction:column;align-items:stretch;gap:10px}
+.tile{width:29px;height:29px;border-radius:7px;background:var(--c);color:#fff;display:grid;place-items:center;flex:none;font-size:18px}
+.tile.lg{width:36px;height:36px;border-radius:9px;font-size:21px;align-self:flex-start}
+.tile svg{stroke-width:2.1}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:15px;color:var(--label2);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.num{font-variant-numeric:tabular-nums}
+
+/* Controls */
+.sw{position:relative;width:51px;height:31px;flex:none}
+.sw input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;border-radius:16px;background:var(--fill2);transition:background .25s}
+.sw span::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#FFFFFF;box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06);transition:transform .3s var(--ease)}
+.sw input:checked+span{background:var(--green)}
+.sw input:checked+span::after{transform:translateX(20px)}
+.seg{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--fill);border-radius:9px;padding:2px;height:32px}
+.seg .thumb{position:absolute;top:2px;bottom:2px;left:2px;width:calc((100% - 4px)/var(--n));transform:translateX(calc(var(--i,0)*100%));background:var(--segthumb);border-radius:7px;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04);transition:transform .3s var(--ease)}
+.seg button{position:relative;z-index:1;border:0;background:none;font-size:13px;font-weight:500;letter-spacing:-.08px;cursor:pointer;border-radius:7px}
+.seg button[aria-pressed="true"]{font-weight:600}
+.stp{display:inline-flex;align-items:center;background:var(--fill);border-radius:8px;height:32px;flex:none}
+.stp button{border:0;background:none;width:47px;height:32px;display:grid;place-items:center;cursor:pointer;font-size:18px;border-radius:8px}
+.stp button:active{background:var(--fill2)}
+.stp button:disabled{opacity:.3;cursor:default}
+.stp i{width:.5px;height:18px;background:var(--sep)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:50px;border-radius:12px;border:0;font-size:17px;font-weight:600;cursor:pointer;transition:transform .15s,opacity .15s}
+.btn:active{transform:scale(.98);opacity:.85}
+.btn.fill{background:var(--blue);color:#FFFFFF}
+.btn.tint{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue)}
+.btn .sym{font-size:20px}
+.linkbtn{border:0;background:none;color:var(--blue);font-size:17px;cursor:pointer;padding:8px}
+
+/* Scan card */
+.scan-card{background:var(--card);border-radius:16px;padding:28px 20px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.hero-art{width:120px;height:120px;margin-bottom:6px}
+.ha-paper{fill:var(--paper)}
+.ha-line{stroke:var(--label3);stroke-width:4;stroke-linecap:round}
+.ha-corner{stroke:var(--blue);stroke-width:4.5;stroke-linecap:round;fill:none}
+.ha-scan{stroke:var(--blue);stroke-width:3;stroke-linecap:round}
+@media (prefers-reduced-motion:no-preference){.ha-scan{animation:sweep 2.6s ease-in-out infinite}}
+@keyframes sweep{0%,100%{transform:translateY(-30px);opacity:.25}50%{transform:translateY(30px);opacity:1}}
+.scan-card h2{font-family:var(--font-d);font-size:22px;line-height:28px;font-weight:700;letter-spacing:.35px;margin:0;text-wrap:balance}
+.scan-card p{margin:0;color:var(--label2);font-size:15px;line-height:20px;letter-spacing:-.24px;max-width:36ch}
+.scan-card .btns{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:12px}
+.note{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--card2);border-radius:12px;padding:12px 14px;margin-top:10px;width:100%;font-size:15px;line-height:20px;color:var(--label2)}
+.note .sym{color:var(--orange);font-size:20px;margin-top:1px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.thumb{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;background:var(--card2)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#FFFFFF;display:grid;place-items:center;font-size:12px;cursor:pointer}
+.spin{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--fill2);border-top-color:var(--label2);animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.caption{font-size:13px;color:var(--label2);margin-top:4px}
+
+/* Results */
+.verdict{border-radius:16px;padding:20px;color:#FFFFFF;display:flex;flex-direction:column;gap:6px;background:var(--vc)}
+.verdict .vsym{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:24px;margin-bottom:6px}
+.verdict.stop .vsym{background:#FF3B30}
+.verdict .vk{font-size:13px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;opacity:.75}
+.verdict h2{font-family:var(--font-d);font-size:28px;line-height:34px;font-weight:700;letter-spacing:.36px;margin:0}
+.verdict p{margin:0;font-size:15px;line-height:20px;letter-spacing:-.24px;opacity:.9}
+.counts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.counts span{font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.18)}
+.rrow{align-items:flex-start}
+.rrow .why{font-size:15px;line-height:20px;letter-spacing:-.24px;margin-top:4px}
+.rrow .act{font-size:15px;line-height:20px;letter-spacing:-.24px;font-weight:600;margin-top:4px}
+.empty{background:var(--card);border-radius:16px;padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.empty .big{font-size:52px;color:var(--label3);margin-bottom:6px}
+.empty h2{margin:0;font-size:22px;line-height:28px;font-family:var(--font-d)}
+.empty p{margin:0;color:var(--label2);font-size:15px;line-height:20px;max-width:30ch}
+
+/* Tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 -.5px 0 var(--sep);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+.tabbar-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:50px}
+.tab{border:0;background:none;color:var(--gray);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;line-height:12px;font-weight:500;letter-spacing:.1px;cursor:pointer;position:relative}
+.tab .sym{font-size:25px}
+.tab[aria-selected="true"]{color:var(--blue)}
+.badge{position:absolute;top:3px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#FFFFFF;font-size:12px;font-weight:600;line-height:18px;text-align:center}
+
+/* Sheets, alerts, toasts */
+.dim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.4);opacity:0;transition:opacity .35s var(--ease)}
+.dim.open{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:640px;margin:0 auto;max-height:calc(100% - 40px - env(safe-area-inset-top,0px));display:flex;flex-direction:column;background:var(--bg);border-radius:12px 12px 0 0;transform:translateY(100%);transition:transform .45s var(--ease);box-shadow:0 -10px 40px rgba(0,0,0,.15)}
+.sheet.open{transform:none}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--label3);margin:6px auto 0;flex:none}
+.sheet-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:52px;padding:0 8px;flex:none}
+.sheet-nav .l{justify-self:start}.sheet-nav .r{justify-self:end}
+.sheet-nav .ttl{font-weight:600}
+.sheet-nav button{border:0;background:none;color:var(--blue);font-size:17px;padding:10px 8px;cursor:pointer}
+.sheet-nav .r button{font-weight:600}
+.sheet-body{overflow:auto;padding:8px max(16px,env(safe-area-inset-left,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:30px;overscroll-behavior:contain}
+.fld{flex:1;min-width:0;border:0;background:transparent;font:inherit;letter-spacing:inherit;color:var(--label);text-align:right;outline:none;padding:0}
+.fld.left{text-align:left}
+.fld::placeholder{color:var(--label3)}
+.selw{position:relative;display:flex;align-items:center;gap:4px;color:var(--label2);min-width:0}
+.selw select{appearance:none;-webkit-appearance:none;border:0;background:transparent;font:inherit;letter-spacing:inherit;color:var(--label2);text-align:right;text-align-last:right;padding:0 2px 0 0;cursor:pointer;outline:none;max-width:220px}
+.selw select:focus-visible{outline:2px solid var(--blue);border-radius:4px}
+.selw .sym{font-size:14px}
+.unit{color:var(--label2);min-width:38px;text-align:left}
+.welcome{padding:40px 28px calc(28px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:28px;overflow:auto}
+.welcome h2{font-family:var(--font-d);font-size:34px;line-height:41px;font-weight:700;letter-spacing:.37px;margin:0;text-align:center;text-wrap:balance}
+.feat{display:flex;gap:16px;align-items:flex-start}
+.feat .sym{font-size:34px;color:var(--c);margin-top:2px}
+.feat b{display:block;font-size:15px;line-height:20px;font-weight:600;letter-spacing:-.24px}
+.feat span{display:block;font-size:15px;line-height:20px;color:var(--label2);letter-spacing:-.24px}
+.welcome .foot{display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:8px}
+.welcome .fine{font-size:12px;line-height:16px;color:var(--label2);text-align:center;max-width:34ch}
+.asheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:500px;margin:0 auto;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;transform:translateY(110%);transition:transform .4s var(--ease)}
+.asheet.open{transform:none}
+.asheet .grp{background:var(--alert);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border-radius:14px;overflow:hidden}
+.asheet .msg{padding:14px 16px;text-align:center;font-size:13px;line-height:18px;color:var(--label2)}
+.asheet button{display:block;width:100%;height:57px;border:0;background:none;font-size:20px;color:var(--blue);cursor:pointer;border-top:.5px solid var(--sep)}
+.asheet .cancel{background:var(--card);border-radius:14px;font-weight:600;border:0}
+.asheet .destr{color:var(--red)}
+.alert{position:fixed;left:50%;top:50%;z-index:42;width:270px;transform:translate(-50%,-50%) scale(1.1);opacity:0;transition:transform .25s var(--ease),opacity .2s;background:var(--alert);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border-radius:14px;text-align:center;overflow:hidden}
+.alert.open{transform:translate(-50%,-50%) scale(1);opacity:1}
+.alert h3{margin:0;padding:19px 16px 2px;font-size:17px;font-weight:600}
+.alert p{margin:0;padding:0 16px 19px;font-size:13px;line-height:18px}
+.alert button{width:100%;height:44px;border:0;border-top:.5px solid var(--sep);background:none;color:var(--blue);font-size:17px;font-weight:600;cursor:pointer}
+.toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));z-index:50;transform:translate(-50%,-140%);transition:transform .45s var(--ease);background:var(--card);border-radius:99px;padding:10px 18px 10px 14px;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.18);max-width:calc(100% - 32px)}
+.toast.open{transform:translate(-50%,0)}
+.toast .sym{color:var(--green);font-size:20px}
+
+/* Scan overlay: deliberately dark in both themes, like a camera view */
+.scanov{position:fixed;inset:0;z-index:45;background:#000000;color:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(60px + env(safe-area-inset-top,0px)) 24px calc(40px + env(safe-area-inset-bottom,0px))}
+.ov-cancel{position:absolute;top:calc(8px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));border:0;background:none;color:#FFFFFF;font-size:17px;padding:10px 12px;cursor:pointer}
+.ov-stage{position:relative;max-width:min(80vw,420px);border-radius:14px;overflow:hidden}
+.ov-stage img{display:block;max-width:100%;max-height:52vh;object-fit:contain}
+.ov-line{position:absolute;left:0;right:0;top:0;height:3px;background:#0A84FF;box-shadow:0 0 18px 6px rgba(10,132,255,.55)}
+@media (prefers-reduced-motion:no-preference){.ov-line{animation:scanline 2.2s ease-in-out infinite}}
+@keyframes scanline{0%,100%{top:2%}50%{top:96%}}
+.ov-text{margin:8px 0 0;font-size:17px;font-weight:600}
+.ov-sub{margin:0;font-size:13px;color:rgba(235,235,245,.6)}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+</style>
+
+<header class="nav" id="nav"><div class="nav-in"><span></span><span class="nav-title" id="navTitle">ClearLane</span><span class="nav-r"><button class="nav-btn" id="navAdd" aria-label="Add item"></button></span></div></header>
+
+<main>
+  <section class="screen" id="scr-scan">
+    <h1 class="large">ClearLane</h1>
+    <div id="scanBody" class="screen"></div>
+  </section>
+
+  <section class="screen" id="scr-results" hidden>
+    <h1 class="large">Results</h1>
+    <div id="resBody" class="screen"></div>
+  </section>
+
+  <section class="screen" id="scr-trip" hidden>
+    <h1 class="large">Trip</h1>
+    <div class="sec">
+      <div class="sh">Travellers</div>
+      <div class="group">
+        <div class="row"><span class="main"><span class="t">People travelling together</span></span>
+          <span class="v num" id="travV">1</span>
+          <span class="stp"><button type="button" id="travMinus" aria-label="Fewer people"></button><i></i><button type="button" id="travPlus" aria-label="More people"></button></span></div>
+      </div>
+      <div class="sf">Food and duty-free allowances are per person, so add everyone in your group.</div>
+    </div>
+    <div class="sec">
+      <div class="sh">Journey</div>
+      <div class="group">
+        <div class="row col"><span class="t">Time outside Singapore</span>
+          <div class="seg" id="segTime" style="--n:2"><span class="thumb"></span><button type="button" data-v="0">Under 48 hours</button><button type="button" data-v="1">48 hours or more</button></div></div>
+        <label class="row" for="swMY"><span class="main"><span class="t">Arriving from Malaysia</span></span><span class="sw"><input type="checkbox" id="swMY" role="switch"><span></span></span></label>
+      </div>
+      <div class="sf">Includes Woodlands and Tuas Checkpoints. There is no duty-free liquor when you arrive from Malaysia.</div>
+    </div>
+    <div class="sec">
+      <div class="sh">About You</div>
+      <div class="group">
+        <label class="row" for="swAdult"><span class="main"><span class="t">Everyone is 18 or older</span></span><span class="sw"><input type="checkbox" id="swAdult" role="switch"><span></span></span></label>
+        <label class="row" for="swPass"><span class="main"><span class="t">Singapore pass holder</span></span><span class="sw"><input type="checkbox" id="swPass" role="switch"><span></span></span></label>
+      </div>
+      <div class="sf">Work, student, dependant and long-term pass holders don't get GST import relief.</div>
+    </div>
+    <div class="sec">
+      <div class="group">
+        <button type="button" class="row action" id="tripSample"><span class="t">Load Sample JB Trip</span></button>
+        <button type="button" class="row danger" id="tripClear"><span class="t">Clear All Items</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-rules" hidden>
+    <h1 class="large">Rules</h1>
+    <div id="rulesBody" class="screen"></div>
+  </section>
+</main>
+
+<nav class="tabbar" aria-label="Sections"><div class="tabbar-in" role="tablist">
+  <button type="button" class="tab" role="tab" data-tab="scan" id="tab-scan"></button>
+  <button type="button" class="tab" role="tab" data-tab="results" id="tab-results"></button>
+  <button type="button" class="tab" role="tab" data-tab="trip" id="tab-trip"></button>
+  <button type="button" class="tab" role="tab" data-tab="rules" id="tab-rules"></button>
+</div></nav>
+
+<input type="file" id="camIn" accept="image/*" capture="environment" hidden>
+<input type="file" id="libIn" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple hidden>
+
+<div class="dim" id="dim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="grab"></div>
+  <div class="sheet-nav" id="sheetNav"><span class="l"><button type="button" id="sheetL">Cancel</button></span><span class="ttl" id="sheetTitle"></span><span class="r"><button type="button" id="sheetR">Done</button></span></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+<div class="asheet" id="asheet" role="dialog" aria-modal="true" hidden></div>
+<div class="alert" id="alert" role="alertdialog" aria-modal="true" hidden><h3 id="alertT"></h3><p id="alertM"></p><button type="button" id="alertOk">OK</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="scanov" id="scanov" hidden>
+  <button type="button" class="ov-cancel" id="ovCancel">Cancel</button>
+  <div class="ov-stage"><img id="ovImg" alt="Photo being scanned"><div class="ov-line"></div></div>
+  <p class="ov-text" id="ovText">Reading your photos…</p>
+  <p class="ov-sub">This usually takes a few seconds.</p>
+</div>
+
+<script>
+(function(){
+"use strict";
+const API="/.netlify/functions/scan";
+const $=id=>document.getElementById(id);
+
+/* ---------- symbols ---------- */
+const P=d=>`<path d="${d}"/>`, C=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}"/>`;
+const SYM={
+  viewfinder:P("M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M7.5 12h9"),
+  camera:P("M3.5 8.5A1.5 1.5 0 0 1 5 7h2.5l1.6-2.2h5.8L16.5 7H19a1.5 1.5 0 0 1 1.5 1.5V18A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18z")+C(12,13,3.5),
+  photo:'<rect x="3" y="5" width="18" height="14" rx="2.5"/>'+C(8.5,10,1.6)+P("M21 15.5l-5-5-9 8.5"),
+  plus:P("M12 5v14M5 12h14"), minus:P("M5 12h14"),
+  chev:P("M9 5.5l6.5 6.5L9 18.5"), updown:P("M8 9.5l4-4 4 4M8 14.5l4 4 4-4"),
+  check:P("M5 12.5l4.5 4.5L19 7.5"), xmark:P("M6.5 6.5l11 11M17.5 6.5l-11 11"),
+  exclam:P("M12 6.5v7.5M12 17.6v.1"), question:P("M9.2 9.3a2.9 2.9 0 1 1 4.2 2.6c-.8.4-1.4 1-1.4 1.9v.7M12 17.6v.1"),
+  doc:P("M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"),
+  plane:P("M10.6 13.4L21 3M21 3l-6.4 18-4-7.6L3 9.4z"),
+  book:P("M5 5.5A2.5 2.5 0 0 1 7.5 3H19v15H7.5A2.5 2.5 0 0 0 5 20.5zM5 20.5A2.5 2.5 0 0 0 7.5 23H19v-5"),
+  list:P("M10 6.5h10M10 12h10M10 17.5h10M4 6.5l1.2 1.2L7.5 5.4M4 12l1.2 1.2L7.5 10.9M4 17.5l1.2 1.2 2.3-2.3"),
+  trash:P("M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4.5h6V7"),
+  arrow:P("M7 17L17 7M8.5 7H17v8.5"),
+  sparkle:P("M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"),
+  shield:P("M12 3l7.5 3v5.5c0 4.6-3.2 8.4-7.5 9.5-4.3-1.1-7.5-4.9-7.5-9.5V6zM8.5 12l2.5 2.5 4.5-5"),
+  stop:P("M8.3 3h7.4L21 8.3v7.4L15.7 21H8.3L3 15.7V8.3zM12 7.5v5.5M12 16.4v.1"),
+  egg:P("M12 3c3.6 0 7 5.8 7 10a7 7 0 0 1-14 0c0-4.2 3.4-10 7-10z"),
+  meat:P("M14.5 3.5a6 6 0 0 1 6 6c0 3.3-2.7 5.5-6 5.5h-2.5L8.6 18.4a2 2 0 1 1-2.8 2.8 2 2 0 1 1-2.8-2.8L6.4 15V12.5c0-5 4.8-9 8.1-9z"),
+  fish:P("M2.5 7l3.5 5-3.5 5M6 12c3-5.2 9.5-6.4 15.5 0-6 6.4-12.5 5.2-15.5 0z")+C(16.5,11,.6),
+  leaf:P("M5 19.5C4.5 11 10.5 4.5 20 4.5c0 9.5-6.5 15.5-15 15M5 19.5l8.5-8.5"),
+  box:P("M3.5 7.5L12 3.5l8.5 4v9L12 20.5l-8.5-4zM3.5 7.5L12 11.5l8.5-4M12 11.5v9"),
+  nest:P("M3 11h18a9 9 0 0 1-18 0zM7.5 7.5c1-1.8 3-1.8 4.5 0 1.5-1.8 3.5-1.8 4.5 0"),
+  bottle:P("M10 2.5h4v4l2.2 3.2V21.5H7.8V9.7L10 6.5zM7.8 13.5h8.4"),
+  cig:'<rect x="2.5" y="13" width="19" height="4" rx="1"/>'+P("M16.5 13v4M18 10c0-1.8 2-1.8 2-3.8"),
+  nosign:C(12,12,8.5)+P("M6 6l12 12"),
+  pill:P("M10.6 3.6a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7-7zM7.1 7.1l7 7"),
+  bag:P("M5 8h14l-1.1 12.5H6.1zM9 8V6.5a3 3 0 0 1 6 0V8"),
+  people:C(9,8,3.5)+P("M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14a6.5 6.5 0 0 1 3.5 6")
+};
+const svg=(n,cls)=>`<svg class="sym ${cls||""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SYM[n]||""}</svg>`;
+function ic(n,cls){const t=document.createElement("template");t.innerHTML=svg(n,cls);return t.content.firstChild;}
+function h(tag,attrs,...kids){
+  const el=document.createElement(tag);
+  if(attrs) for(const k in attrs){const v=attrs[k]; if(v==null||v===false) continue;
+    if(k==="class") el.className=v; else if(k==="style") el.setAttribute("style",v);
+    else if(k.startsWith("on")) el.addEventListener(k.slice(2),v); else el.setAttribute(k,v===true?"":v);}
+  for(const c of kids.flat()) if(c!=null&&c!==false) el.append(c.nodeType?c:String(c));
+  return el;
+}
+const tile=(icon,color,lg)=>{const s=h("span",{class:"tile"+(lg?" lg":""),style:`--c:var(--${color})`});s.append(ic(icon));return s;};
+
+/* ---------- rules data (Singapore Customs, SFA, ICA) ---------- */
+const APPROVED={
+  beef:["argentina","australia","belgium","brazil","canada","denmark","finland","france","germany","hungary","ireland","japan","mexico","paraguay","poland","spain","netherlands","new zealand","sweden","uruguay","usa"],
+  mutton:["argentina","australia","belgium","brazil","canada","denmark","france","ireland","new zealand","spain","switzerland","netherlands","uruguay","united kingdom","usa"],
+  pork:["argentina","australia","austria","belgium","brazil","canada","chile","colombia","denmark","finland","france","germany","hungary","ireland","italy","japan","mexico","poland","portugal","paraguay","taiwan","netherlands","new zealand","spain","sweden","switzerland","united kingdom","usa"],
+  poultry:["argentina","australia","belgium","brazil","canada","chile","denmark","finland","france","germany","hungary","indonesia","ireland","japan","new zealand","paraguay","poland","russia","spain","switzerland","thailand","netherlands","turkiye","united kingdom","usa"],
+  eggs:["australia","brunei","denmark","finland","indonesia","ireland","japan","malaysia","netherlands","turkiye","new zealand","poland","spain","sweden","korea","thailand","ukraine","usa"],
+  oyster:["australia","canada","france","ireland","new zealand","netherlands","uae","united kingdom","usa"]
+};
+const ALIAS={"united states":"usa","us":"usa","u.s.":"usa","america":"usa","united states of america":"usa","uk":"united kingdom","britain":"united kingdom","great britain":"united kingdom","england":"united kingdom","the netherlands":"netherlands","holland":"netherlands","turkey":"turkiye","türkiye":"turkiye","south korea":"korea","republic of korea":"korea","united arab emirates":"uae","west malaysia":"malaysia","malaysia (west)":"malaysia"};
+const norm=s=>{s=String(s||"").trim().toLowerCase();return ALIAS[s]||s;};
+const CATS={
+  eggs:{label:"Eggs",unit:"eggs",icon:"egg",color:"orange"}, meat:{label:"Meat",unit:"kg",icon:"meat",color:"pink"},
+  fish:{label:"Fish & Seafood",unit:"kg",icon:"fish",color:"teal"}, fruitveg:{label:"Fruits & Vegetables",unit:"kg",icon:"leaf",color:"green"},
+  processed:{label:"Processed Food",unit:"kg",icon:"box",color:"brown"}, birdnest:{label:"Bird's Nest",unit:"kg",icon:"nest",color:"indigo"},
+  liquor:{label:"Liquor",unit:"L",icon:"bottle",color:"purple"}, tobacco:{label:"Cigarettes & Tobacco",unit:"sticks",icon:"cig",color:"gray"},
+  prohibited:{label:"Prohibited Item",unit:"pcs",icon:"nosign",color:"red"}, medicine:{label:"Medicine",unit:"pcs",icon:"pill",color:"mint"},
+  goods:{label:"Other Goods",unit:"pcs",icon:"bag",color:"blue"}, other:{label:"Not Sure",unit:"pcs",icon:"question",color:"gray"}
+};
+const SUBS={
+  meat:[["beef","Beef"],["mutton","Mutton"],["pork","Pork"],["poultry","Poultry"],["other","Other Meat"]],
+  fish:[["fish","Fish or Dried Fish"],["crabprawn","Cooked Crab or Prawn Meat"],["oyster","Oysters"]],
+  liquor:[["spirits","Spirits"],["wine","Wine or Sake"],["beer","Beer"]],
+  prohibited:[["gum","Chewing Gum"],["vape","E-cigarette or Vape"],["chewtob","Chewing Tobacco or Shisha"],["drugs","Controlled Drugs"],["wildlife","Endangered Wildlife Product"],["other","Other Prohibited Item"]]
+};
+const STATUS={
+  banned:{label:"Do Not Bring",short:"Remove",color:"red",icon:"xmark",rank:4},
+  permit:{label:"Permit Needed",short:"Permit",color:"blue",icon:"doc",rank:3},
+  declare:{label:"Declare",short:"Declare",color:"orange",icon:"exclam",rank:2},
+  check:{label:"Review",short:"Review",color:"gray",icon:"question",rank:1},
+  allowed:{label:"Allowed",short:"OK",color:"green",icon:"check",rank:0}
+};
+const ORDER=["banned","permit","declare","check","allowed"];
+
+/* ---------- state ---------- */
+const KEY="clearlane.v2";
+let trip={trav:1,ge48:0,fromMY:1,adult:1,pass:0}, items=[], seen=false, uid=1;
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s){trip=Object.assign(trip,s.trip||{}); items=Array.isArray(s.items)?s.items:[]; seen=!!s.seen; uid=items.reduce((m,i)=>Math.max(m,+i.id||0),0)+1;}}catch(_){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({trip,items,seen}));}catch(_){}}
+const newItem=o=>Object.assign({id:uid++,name:"",cat:"goods",sub:"",qty:1,value:null,origin:"",note:"",conf:""},o);
+
+const fmt=(n,d=2)=>String(Math.round((+n||0)*10**d)/10**d);
+const money=n=>"S$"+(Math.round((+n||0)*100)/100).toFixed(2);
+function qtyText(it){const n=+it.qty||0, u=(CATS[it.cat]||CATS.other).unit;
+  if(u==="eggs") return `${fmt(n,0)} egg${n===1?"":"s"}`; if(u==="sticks") return `${fmt(n,0)} stick${n===1?"":"s"}`;
+  if(u==="pcs") return `${fmt(n,0)} pc${n===1?"":"s"}`; return `${fmt(n)} ${u}`;}
+
+/* ---------- rule engine ---------- */
+function evaluate(){
+  const N=Math.max(1,trip.trav), out=[];
+  const by=c=>items.filter(i=>i.cat===c);
+  const sum=(a,f="qty")=>a.reduce((s,i)=>s+(+i[f]||0),0);
+  const R=(k,icon,name,arr,measure,why,act)=>out.push({k,icon,name,ids:arr.map(i=>i.id),items:arr.map(i=>i.name||CATS[i.cat].label).join(", "),measure,why,act});
+
+  let g=by("eggs"); if(g.length){
+    const t=sum(g), lim=30*N, bad=g.filter(i=>i.origin&&!APPROVED.eggs.includes(norm(i.origin)));
+    if(bad.length) R("banned","egg","Eggs from a non-approved country",bad,`From ${bad.map(i=>i.origin).join(", ")}`,"These eggs aren't from an SFA-approved source.","Don't bring them into Singapore.");
+    if(t>lim) R("permit","egg","Eggs over the limit",g,`${fmt(t,0)} eggs · limit ${lim}`,`Each person can bring up to 30 shell chicken eggs. You have ${fmt(t-lim,0)} too many.`,"Declare at the Red Channel. Bringing more than the limit needs an SFA import licence and permit, or the extra eggs may be detained.");
+    else R("allowed","egg","Eggs",g,`${fmt(t,0)} eggs · limit ${lim}`,"Within 30 eggs per person.","Shell chicken eggs only. Processed and free-range eggs aren't allowed.");
+  }
+  g=by("meat"); if(g.length){
+    const t=sum(g), lim=5*N, bad=g.filter(i=>{const l=APPROVED[i.sub];return i.origin&&(!l||!l.includes(norm(i.origin)));}), unk=g.filter(i=>!i.origin);
+    if(bad.length) R("banned","meat","Meat from a non-approved country",bad,`From ${bad.map(i=>i.origin).join(", ")}`,"This meat isn't from an SFA-approved source country.","Don't bring it in. It will be disposed of at the checkpoint.");
+    if(t>lim) R("permit","meat","Meat over the limit",g,`${fmt(t)} kg · limit ${lim} kg`,"Each person can bring up to 5 kg of meat.","Declare at the Red Channel. More than the limit needs an SFA import licence and permit.");
+    else R(unk.length?"check":"allowed","meat","Meat",g,`${fmt(t)} kg · limit ${lim} kg`,"Within 5 kg per person.",unk.length?"Add the country it's from. Malaysia isn't an approved source for meat.":"Keep your receipt to show where it was bought.");
+  }
+  g=by("fish"); if(g.length){
+    const t=sum(g), cp=sum(g.filter(i=>i.sub==="crabprawn")), lim=5*N, cpl=2*N;
+    const badO=g.filter(i=>i.sub==="oyster"&&i.origin&&!APPROVED.oyster.includes(norm(i.origin)));
+    if(badO.length) R("banned","fish","Oysters from a non-approved country",badO,`From ${badO.map(i=>i.origin).join(", ")}`,"These oysters aren't from an SFA-approved source.","Don't bring them in.");
+    const over=t>lim||cp>cpl;
+    R(over?"permit":"allowed","fish",over?"Seafood over the limit":"Fish & Seafood",g,`${fmt(t)} kg · limit ${lim} kg`+(cp?` · crab/prawn ${fmt(cp)} of ${cpl} kg`:""),
+      over?"Over the limit of 5 kg per person, with at most 2 kg of cooked crab or prawn meat.":"Within 5 kg per person.",
+      over?"Declare at the Red Channel. More than the limit needs an SFA import licence and permit.":"Nothing to do.");
+  }
+  g=by("fruitveg"); if(g.length) R("allowed","leaf","Fruits & Vegetables",g,"From any country","Allowed in a small, hand-carry amount.","Keep it to a reasonable amount for your own use.");
+  g=by("processed"); if(g.length){
+    const t=sum(g), v=sum(g,"value"), over=t>5*N||v>100*N;
+    R(over?"permit":"allowed","box",over?"Processed food over the limit":"Processed Food",g,`${fmt(t)} kg · ${money(v)} · limit ${5*N} kg and ${money(100*N)}`,
+      over?"Each person can bring up to 5 kg (or 5 L) worth no more than S$100.":"Within 5 kg and S$100 per person.",
+      over?"Declare at the Red Channel. More than the limit needs an SFA import licence and permit.":"Nothing to do.");
+  }
+  g=by("birdnest"); if(g.length){const t=sum(g), over=t>N;
+    R(over?"permit":"allowed","nest","Bird's Nest",g,`${fmt(t)} kg · limit ${N} kg`,"Cleaned dried bird's nest is limited to 1 kg per person.",over?"Declare at the Red Channel. More needs an SFA import permit.":"Nothing to do.");}
+  g=by("liquor"); if(g.length){
+    const S=sum(g.filter(i=>i.sub==="spirits"))/N, W=sum(g.filter(i=>i.sub==="wine"))/N, B=sum(g.filter(i=>i.sub==="beer"))/N, tot=(S+W+B)*N, e=.0001;
+    const fits=(S<=1+e&&W<=1+e&&B<=e)||(S<=1+e&&B<=1+e&&W<=e)||(W<=1+e&&B<=1+e&&S<=e)||(W<=2+e&&S<=e&&B<=e)||(B<=2+e&&S<=e&&W<=e);
+    const no=[]; if(trip.fromMY) no.push("there's no duty-free liquor when arriving from Malaysia"); if(!trip.ge48) no.push("you need to be away for at least 48 hours"); if(!trip.adult) no.push("you must be 18 or older");
+    const m=`Per person: spirits ${fmt(S)} L · wine ${fmt(W)} L · beer ${fmt(B)} L`;
+    if(tot>10) R("permit","bottle","Liquor over 10 litres",g,m,"Bringing in more than 10 litres needs a Customs permit.","Get a Customs permit before you travel.");
+    else if(no.length) R("declare","bottle","Liquor",g,m,"No duty-free concession: "+no.join("; ")+".","Declare at the Red Channel and pay duty and GST, or pay ahead with the Customs@SG app.");
+    else if(!fits) R("declare","bottle","Liquor over the duty-free amount",g,m,"Duty-free options are 1 L spirits with 1 L wine or beer, 1 L wine with 1 L beer, 2 L wine, or 2 L beer.","Declare at the Red Channel and pay duty and GST on the extra.");
+    else R("allowed","bottle","Liquor",g,m,"Fits a duty-free option.","For your own use only. You can't sell or give it away.");
+  }
+  g=by("tobacco"); if(g.length) R("declare","cig","Cigarettes & Tobacco",g,`${fmt(sum(g),0)} sticks`,"Singapore has no duty-free allowance for cigarettes or tobacco.","Declare at the Red Channel and pay duty and GST. Packs without Singapore's standard packaging will be disposed of.");
+  for(const i of by("prohibited")){
+    const sub=(SUBS.prohibited.find(s=>s[0]===i.sub)||[0,"Prohibited Item"])[1];
+    R("banned","nosign",sub,[i],"On Singapore's prohibited list",i.sub==="drugs"?"Controlled drugs are prohibited, and drug offences carry very severe penalties.":`${sub} can't be brought into Singapore.`,"Leave it behind before the checkpoint. Bringing prohibited goods in is an offence.");
+  }
+  g=by("medicine"); if(g.length) R("check","pill","Medicine",g,"Depends on the medicine","Some medicines are controlled by the Health Sciences Authority (HSA).","Carry your doctor's prescription and check with HSA before you travel.");
+  g=by("goods"); if(g.length){
+    const v=sum(g,"value")+sum(by("processed"),"value"), relief=trip.pass?0:(trip.ge48?500:100)*N, miss=g.filter(i=>i.value==null||i.value==="");
+    const why=trip.pass?"Singapore pass holders don't get GST import relief.":`Your GST relief is ${money(relief)} (${trip.ge48?"S$500":"S$100"} per person for your time away). Food you bought counts too.`;
+    if(v>relief) R("declare","bag","New Goods over GST relief",g,`${money(v)} · relief ${money(relief)}`,why,`Declare at the Red Channel and pay GST on ${money(v-relief)}, or pay ahead with the Customs@SG app.`);
+    else R(miss.length?"check":"allowed","bag","New Goods",g,`${money(v)} · relief ${money(relief)}`,why,miss.length?"Add a price for every item so ClearLane can check your GST relief.":"Within your GST relief. Keep your receipts handy.");
+  }
+  g=by("other"); if(g.length) R("check","question","Items to sort",g,"","ClearLane couldn't match these to a rule.","Choose a category for each one, or ask an ICA officer at the checkpoint.");
+  return out;
+}
+
+/* ---------- navigation ---------- */
+const TABS={scan:{label:"Scan",icon:"viewfinder",title:"ClearLane"},results:{label:"Results",icon:"list",title:"Results"},trip:{label:"Trip",icon:"plane",title:"Trip"},rules:{label:"Rules",icon:"book",title:"Rules"}};
+let tab="scan";
+for(const k in TABS){const b=$("tab-"+k); b.innerHTML=svg(TABS[k].icon)+`<span>${TABS[k].label}</span>`; b.onclick=()=>go(k);}
+function go(k){
+  if(!TABS[k]) return; tab=k;
+  for(const t in TABS){$("scr-"+t).hidden=t!==k; $("tab-"+t).setAttribute("aria-selected",String(t===k));}
+  const s=$("scr-"+k); s.classList.remove("enter"); void s.offsetWidth; s.classList.add("enter");
+  $("navTitle").textContent=TABS[k].title; $("navAdd").hidden=k!=="scan";
+  window.scrollTo(0,0); onScroll();
+}
+$("navAdd").innerHTML=svg("plus"); $("navAdd").onclick=()=>openItem(null);
+const nav=$("nav"); function onScroll(){nav.classList.toggle("scrolled",window.scrollY>36);}
+addEventListener("scroll",onScroll,{passive:true});
+
+/* ---------- scan screen ---------- */
+let mode="loading", sampleFn=null, maxPhotos=5, photos=[];
+const HERO=`<svg class="hero-art" viewBox="0 0 120 120" aria-hidden="true"><path class="ha-paper" d="M38 26a4 4 0 0 1 4-4h36a4 4 0 0 1 4 4v70l-5.5-4-5.5 4-5.5-4-5.5 4-5.5-4-5.5 4-5.5-4-5.5 4z"/><path class="ha-line" d="M47 37h26M47 47h18M47 57h22M47 67h14M47 80h26"/><path class="ha-corner" d="M14 34V20a6 6 0 0 1 6-6h14M86 14h14a6 6 0 0 1 6 6v14M106 86v14a6 6 0 0 1-6 6H86M34 106H20a6 6 0 0 1-6-6V86"/><line class="ha-scan" x1="24" x2="96" y1="60" y2="60"/></svg>`;
+
+function renderScan(){
+  const box=$("scanBody"); box.textContent="";
+  const res=evaluate(), st=itemStatus(res);
+  // Trip summary
+  box.append(h("div",{class:"sec"},h("div",{class:"group icons"},
+    h("button",{type:"button",class:"row",onclick:()=>go("trip")},tile("plane","blue"),
+      h("span",{class:"main"},h("span",{class:"t"},"Your Trip"),h("span",{class:"s"},tripText())),ic("chev","chev")))));
+  // Scan card
+  const card=h("div",{class:"scan-card"}); card.insertAdjacentHTML("afterbegin",HERO);
+  card.append(h("h2",null,"Scan Receipts & Items"),h("p",null,"Take a photo of your receipts or the things in your bag. ClearLane lists each item and checks it against Singapore's rules."));
+  const btns=h("div",{class:"btns"});
+  if(mode==="loading"){ btns.append(h("div",{class:"btn tint",style:"pointer-events:none"},h("span",{class:"spin"}),"Getting ready")); }
+  else if(mode==="claude"||mode==="server"){
+    if(photos.length){
+      const th=h("div",{class:"thumbs"});
+      photos.forEach((p,i)=>{const b=h("button",{type:"button","aria-label":`Remove photo ${i+1}`,onclick:()=>{URL.revokeObjectURL(p.url);photos.splice(i,1);renderScan();}}); b.append(ic("xmark"));
+        th.append(h("div",{class:"thumb"},h("img",{src:p.url,alt:`Photo ${i+1}`}),b));});
+      card.append(th);
+      btns.append(h("button",{type:"button",class:"btn fill",onclick:runScan},ic("sparkle"),`Scan ${photos.length} Photo${photos.length>1?"s":""}`));
+      if(photos.length<maxPhotos) btns.append(h("button",{type:"button",class:"btn tint",onclick:()=>$("libIn").click()},ic("plus"),"Add Another Photo"));
+    } else {
+      btns.append(h("button",{type:"button",class:"btn fill",onclick:()=>$("camIn").click()},ic("camera"),"Take Photo"),
+                  h("button",{type:"button",class:"btn tint",onclick:()=>$("libIn").click()},ic("photo"),"Choose from Library"));
+    }
+  } else {
+    const msg=mode==="notcfg"?"AI scanning is installed but has no API key yet. Add GEMINI_API_KEY in your Netlify settings, then redeploy.":"AI scanning isn't available in this copy. You can still add items yourself or try the sample trip.";
+    const n=h("div",{class:"note"}); n.append(ic("exclam"),h("span",null,msg)); btns.append(n);
+  }
+  card.append(btns);
+  if(mode==="claude"||mode==="server") card.append(h("span",{class:"caption"},`Up to ${maxPhotos} photos per scan. Photos aren't saved by ClearLane.`));
+  box.append(card);
+  // Items
+  const sec=h("div",{class:"sec"},h("div",{class:"sh"},items.length?`Items in Your Bag (${items.length})`:"Items in Your Bag"));
+  const grp=h("div",{class:"group icons"});
+  for(const it of items){
+    const c=CATS[it.cat]||CATS.other, k=st[it.id]||"allowed", S=STATUS[k];
+    const sub=[qtyText(it), it.value!=null&&it.value!==""?money(it.value):null, it.origin||null].filter(Boolean).join(" · ");
+    grp.append(h("button",{type:"button",class:"row",onclick:()=>openItem(it)},tile(c.icon,c.color),
+      h("span",{class:"main"},h("span",{class:"t"},it.name||c.label),h("span",{class:"s num"},sub)),
+      h("span",{class:"st",style:`--c:var(--${S.color})`},h("span",{class:"dot"}),S.short),ic("chev","chev")));
+  }
+  grp.append(h("button",{type:"button",class:"row action",onclick:()=>openItem(null)},tile("plus","blue"),h("span",{class:"t"},"Add Item")));
+  if(!items.length) grp.append(h("button",{type:"button",class:"row action",onclick:loadSample},tile("sparkle","indigo"),h("span",{class:"t"},"Try a Sample JB Trip")));
+  sec.append(grp);
+  sec.append(h("div",{class:"sf"},items.length?"Tap an item to fix its name, amount or price.":"Scan a photo, add items yourself, or load the sample trip to see how it works."));
+  box.append(sec);
+  if(items.length){
+    const n=res.filter(r=>["banned","permit","declare"].includes(r.k)).length;
+    box.append(h("button",{type:"button",class:"btn fill",onclick:()=>go("results")},n?`See What to Do · ${n} to Act On`:"See Results"));
+  }
+  box.append(h("p",{class:"sf",style:"text-align:center;margin:-10px 0 0"},"ClearLane is a guide only. ICA officers make the final decision."));
+}
+function tripText(){return [`${trip.trav} ${trip.trav>1?"people":"person"}`,trip.ge48?"48 h or more away":"Under 48 h away",trip.fromMY?"From Malaysia":"Not from Malaysia"].join(" · ");}
+function itemStatus(res){const m={}; for(const r of res) for(const id of r.ids){ if(!m[id]||STATUS[r.k].rank>STATUS[m[id]].rank) m[id]=r.k; } return m;}
+
+/* ---------- results screen ---------- */
+function renderResults(){
+  const box=$("resBody"); box.textContent="";
+  const res=evaluate();
+  const act=res.filter(r=>["banned","permit","declare"].includes(r.k)).length;
+  const b=$("tab-results").querySelector(".badge"); if(b) b.remove();
+  if(act) $("tab-results").append(h("span",{class:"badge num","aria-label":`${act} to act on`},String(act)));
+  if(!res.length){
+    const e=h("div",{class:"empty"}); e.append(ic("list","big"),h("h2",null,"No Items Yet"),h("p",null,"Scan a receipt or add items to see what to declare."),h("button",{type:"button",class:"linkbtn",onclick:()=>go("scan")},"Go to Scan"));
+    box.append(e); return;
+  }
+  const has=k=>res.some(r=>r.k===k);
+  let v;
+  if(has("banned")) v={cls:"stop",c:"var(--v-stop)",icon:"stop",k:"Before the checkpoint",t:"Remove Items First",p:"Some items can't enter Singapore. Leave them behind."+(has("permit")||has("declare")?" Then go to the Red Channel for the rest.":"")};
+  else if(has("permit")||has("declare")) v={c:"var(--v-red)",icon:"exclam",k:"Your channel",t:"Red Channel",p:"You have items to declare. You can also declare and pay ahead with the Customs@SG app."};
+  else if(has("check")) v={c:"var(--v-review)",icon:"question",k:"Almost there",t:"Review Your Items",p:"A few items need more details. Fix them, or declare if you're unsure."};
+  else v={c:"var(--v-green)",icon:"check",k:"Your channel",t:"Green Channel",p:"Nothing to declare, based on the items you added."};
+  const vc=h("div",{class:"verdict"+(v.cls?" "+v.cls:""),style:`--vc:${v.c}`});
+  const vs=h("span",{class:"vsym"}); vs.append(ic(v.icon)); vc.append(vs,h("span",{class:"vk"},v.k),h("h2",null,v.t),h("p",null,v.p));
+  const cn=h("div",{class:"counts"}); for(const k of ORDER){const n=res.filter(r=>r.k===k).length; if(n) cn.append(h("span",{class:"num"},`${n} ${STATUS[k].label}`));}
+  vc.append(cn); box.append(vc);
+  for(const k of ORDER){
+    const list=res.filter(r=>r.k===k); if(!list.length) continue;
+    const g=h("div",{class:"group big"});
+    for(const r of list) g.append(h("div",{class:"row rrow"},tile(STATUS[k].icon,STATUS[k].color,true),
+      h("span",{class:"main"},h("span",{class:"t",style:"font-weight:600"},r.name),h("span",{class:"s"},r.items),
+        r.measure?h("span",{class:"s num"},r.measure):null,h("span",{class:"why"},r.why),h("span",{class:"act"},r.act))));
+    box.append(h("div",{class:"sec"},h("div",{class:"sh"},STATUS[k].label),g));
+  }
+  box.append(h("p",{class:"sf",style:"text-align:center;margin:-10px 0 0"},"Based on Singapore Customs and SFA rules. A guide only. ICA officers make the final decision."));
+}
+
+/* ---------- trip screen ---------- */
+$("travMinus").innerHTML=svg("minus"); $("travPlus").innerHTML=svg("plus");
+function syncTrip(){
+  $("travV").textContent=trip.trav; $("travMinus").disabled=trip.trav<=1; $("travPlus").disabled=trip.trav>=20;
+  const seg=$("segTime"); seg.style.setProperty("--i",trip.ge48); seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===trip.ge48)));
+  $("swMY").checked=!!trip.fromMY; $("swAdult").checked=!!trip.adult; $("swPass").checked=!!trip.pass;
+}
+const tripChanged=()=>{syncTrip();save();renderScan();renderResults();};
+$("travMinus").onclick=()=>{trip.trav=Math.max(1,trip.trav-1);tripChanged();};
+$("travPlus").onclick=()=>{trip.trav=Math.min(20,trip.trav+1);tripChanged();};
+$("segTime").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return; trip.ge48=+b.dataset.v; tripChanged();});
+$("swMY").onchange=e=>{trip.fromMY=e.target.checked?1:0;tripChanged();};
+$("swAdult").onchange=e=>{trip.adult=e.target.checked?1:0;tripChanged();};
+$("swPass").onchange=e=>{trip.pass=e.target.checked?1:0;tripChanged();};
+$("tripSample").onclick=()=>{loadSample(); go("scan");};
+$("tripClear").onclick=()=>actionSheet(items.length?"This removes every item in your bag.":"Your bag is already empty.",items.length?[{label:"Clear All Items",destructive:true,fn:()=>{items=[];save();renderAll();toast("Bag cleared");}}]:[]);
+
+/* ---------- rules screen ---------- */
+const RULES=[
+  {h:"Food, per person",rows:[["egg","orange","Eggs","Up to 30 shell chicken eggs from approved countries, including West Malaysia. No processed or free-range eggs."],
+    ["meat","pink","Meat","Up to 5 kg of beef, mutton, pork or poultry from approved countries only. Malaysia isn't one."],
+    ["fish","teal","Fish & seafood","Up to 5 kg, with at most 2 kg of cooked crab or prawn meat."],
+    ["box","brown","Processed food","Up to 5 kg or 5 L in total, worth no more than S$100."],
+    ["nest","indigo","Bird's nest","Up to 1 kg of cleaned dried bird's nest."],
+    ["leaf","green","Fruits & vegetables","A small, hand-carry amount from any country."]],f:"Bringing more than these limits needs an SFA import licence and permit."},
+  {h:"Alcohol & tobacco",rows:[["bottle","purple","Liquor","Duty-free: 1 L spirits with 1 L wine or beer, 1 L wine with 1 L beer, 2 L wine, or 2 L beer. You must be 18+, away 48 hours or more, and not arriving from Malaysia."],
+    ["cig","gray","Cigarettes & tobacco","No duty-free allowance. Always declare and pay duty and GST."]],f:"More than 10 litres of liquor needs a Customs permit."},
+  {h:"Never bring",rows:[["nosign","red","Chewing gum","Except approved dental or medicinal gum."],["nosign","red","E-cigarettes & vapes","Including pods, e-liquid and parts."],
+    ["nosign","red","Chewing tobacco & shisha","Also snuff, gutkha, khaini and zarda."],["nosign","red","Controlled drugs","Drug offences carry very severe penalties."],["nosign","red","Endangered wildlife","And products made from them."]]},
+  {h:"GST import relief",rows:[["bag","blue","Away under 48 hours","New goods up to S$100 per person."],["bag","blue","Away 48 hours or more","New goods up to S$500 per person."],["bag","blue","Pass holders","No GST relief for work, student, dependant or long-term pass holders."]],f:"Liquor and tobacco don't count toward GST relief."}
+];
+const SOURCES=[["Singapore Customs: Duty-Free Concession & GST Relief","https://www.customs.gov.sg/at-customs/arriving-in-singapore/duty-free-concession-gst-relief/"],
+  ["Singapore Customs: Prohibited Goods","https://www.customs.gov.sg/doing-business/import-operations/import-procedures/controlled-and-prohibited-goods-for-imports/"],
+  ["SFA: Food You Can Bring In","https://www.sfa.gov.sg/bringing-food-for-private-consumption-from-overseas/list-of-food---food-products-allowed"],
+  ["ICA: What You Can Bring","https://www.ica.gov.sg/enter-transit-depart/entering-singapore/what-you-can-bring"]];
+(function renderRules(){
+  const box=$("rulesBody");
+  for(const s of RULES){const g=h("div",{class:"group icons"});
+    for(const [i,c,t,d] of s.rows) g.append(h("div",{class:"row",style:"align-items:flex-start"},tile(i,c),h("span",{class:"main"},h("span",{class:"t"},t),h("span",{class:"s"},d))));
+    box.append(h("div",{class:"sec"},h("div",{class:"sh"},s.h),g,s.f?h("div",{class:"sf"},s.f):null));}
+  const g=h("div",{class:"group"});
+  for(const [t,u] of SOURCES) g.append(h("a",{class:"row action",href:u,target:"_blank",rel:"noopener"},h("span",{class:"main"},h("span",{class:"t"},t)),ic("arrow")));
+  box.append(h("div",{class:"sec"},h("div",{class:"sh"},"Official sources"),g,h("div",{class:"sf"},"Rules change from time to time. Check these pages before you travel.")));
+})();
+
+/* ---------- sheets ---------- */
+let sheetClose=null;
+function openSheet({title,left,right,body,welcome}){
+  $("sheetTitle").textContent=title||""; $("sheetNav").hidden=!!welcome;
+  $("sheetL").textContent=left?left.label:""; $("sheetL").onclick=left?left.fn:null; $("sheetL").hidden=!left;
+  $("sheetR").textContent=right?right.label:""; $("sheetR").onclick=right?right.fn:null; $("sheetR").hidden=!right;
+  const b=$("sheetBody"); b.textContent=""; b.className=welcome?"welcome":"sheet-body"; b.append(body);
+  sheetClose=left?left.fn:closeSheet;
+  $("dim").hidden=false; $("sheet").hidden=false;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{$("dim").classList.add("open");$("sheet").classList.add("open");}));
+}
+function closeSheet(){
+  $("dim").classList.remove("open"); $("sheet").classList.remove("open"); sheetClose=null;
+  setTimeout(()=>{if(!$("sheet").classList.contains("open")){$("sheet").hidden=true; if(!$("asheet").classList.contains("open")) $("dim").hidden=true;}},450);
+}
+$("dim").onclick=()=>{ if($("asheet").classList.contains("open")) closeAction(); else if(sheetClose) sheetClose(); };
+addEventListener("keydown",e=>{ if(e.key!=="Escape") return; if(!$("alert").hidden) closeAlert(); else if($("asheet").classList.contains("open")) closeAction(); else if(sheetClose) sheetClose(); });
+
+function openItem(it){
+  const isNew=!it; let d=isNew?newItem({cat:"goods"}):Object.assign({},it);
+  const field=(label,key,opts={})=>{
+    const inp=h("input",{class:"fld"+(opts.left?" left":"")+(opts.num?" num":""),id:"f-"+key,type:opts.num?"text":"text",inputmode:opts.num?"decimal":null,
+      placeholder:opts.ph||"",value:d[key]==null?"":String(d[key]),autocomplete:"off",oninput:e=>{const v=e.target.value.replace(",",".");
+        d[key]=opts.num?(v.trim()===""?null:(Number.isFinite(+v)?+v:d[key])):e.target.value;}});
+    return h("label",{class:"row",for:"f-"+key},opts.left?null:h("span",{class:"t"},label),inp,opts.unit?h("span",{class:"unit"},opts.unit):null);
+  };
+  const sel=(label,id,opts,val,onch)=>{const s=h("select",{id,onchange:e=>onch(e.target.value)},opts.map(([v,l])=>{const o=h("option",{value:v},l); if(v===val) o.selected=true; return o;}));
+    const w=h("span",{class:"selw"},s); w.append(ic("updown")); return h("label",{class:"row",for:id},h("span",{class:"main"},h("span",{class:"t"},label)),w);};
+  function body(){
+    const c=CATS[d.cat]||CATS.other, wrap=h("div",{class:"screen"});
+    wrap.append(h("div",{class:"sec"},h("div",{class:"group"},field("Name","name",{left:true,ph:c.label}))));
+    const g2=h("div",{class:"group"},sel("Category","f-cat",Object.entries(CATS).map(([k,v])=>[k,v.label]),d.cat,v=>{d.cat=v;d.sub=SUBS[v]?SUBS[v][0][0]:"";rebuild();}));
+    if(SUBS[d.cat]) g2.append(sel("Type","f-sub",SUBS[d.cat],d.sub||SUBS[d.cat][0][0],v=>{d.sub=v;}));
+    wrap.append(h("div",{class:"sec"},g2));
+    const g3=h("div",{class:"group"},field("Amount","qty",{num:true,ph:"0",unit:c.unit}),field("Price","value",{num:true,ph:"Optional",unit:"SGD"}));
+    if(["eggs","meat","fish"].includes(d.cat)) g3.append(field("From","origin",{ph:"Country"}));
+    const foot={eggs:"Count each egg. One tray is usually 30.",meat:"Enter the weight in kilograms. Add the country so ClearLane can check approved sources.",fish:"Enter the weight in kilograms.",liquor:"Enter litres. A standard bottle is 0.7 L.",tobacco:"Enter sticks. One pack is usually 20.",processed:"Enter kilograms or litres.",goods:"Add the price so ClearLane can check your GST relief."}[d.cat];
+    wrap.append(h("div",{class:"sec"},h("div",{class:"sh"},"Details"),g3,foot?h("div",{class:"sf"},foot):null));
+    if(d.note) wrap.append(h("div",{class:"sec"},h("div",{class:"group icons"},h("div",{class:"row"},tile("sparkle","indigo"),h("span",{class:"main"},h("span",{class:"t"},"AI note"),h("span",{class:"s"},d.note))))));
+    if(!isNew) wrap.append(h("div",{class:"sec"},h("div",{class:"group"},h("button",{type:"button",class:"row danger center",onclick:()=>{items=items.filter(x=>x.id!==it.id);save();renderAll();closeSheet();toast("Item deleted");}},h("span",{class:"t"},"Delete Item")))));
+    return wrap;
+  }
+  function rebuild(){const b=$("sheetBody"); b.textContent=""; b.append(body());}
+  openSheet({title:isNew?"New Item":"Edit Item",left:{label:"Cancel",fn:closeSheet},right:{label:isNew?"Add":"Done",fn:()=>{
+    if(!d.name||!String(d.name).trim()) d.name=(CATS[d.cat]||CATS.other).label; if(d.qty==null) d.qty=0;
+    if(isNew) items.push(d); else items=items.map(x=>x.id===it.id?d:x);
+    save(); renderAll(); closeSheet(); toast(isNew?"Item added":"Changes saved");}},body:body()});
+  if(isNew) setTimeout(()=>{const f=$("f-name"); if(f) f.focus();},460);
+}
+
+function showWelcome(){
+  const feats=[["viewfinder","blue","Scan what you bought","Snap receipts or the items in your bag. ClearLane lists everything for you."],
+    ["shield","green","Know the limits","Every item is checked against Singapore Customs and SFA rules."],
+    ["stop","red","Avoid fines at the checkpoint","See what to declare, what needs a permit and what to leave behind."]];
+  const w=h("div",{style:"display:flex;flex-direction:column;gap:28px"});
+  w.append(h("img",{src:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJiZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzQTk1RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDA0M0M4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMC4zIiBjeT0iMC4xMiIgcj0iMC43NSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRkZGRiIgc3RvcC1vcGFjaXR5PSIwLjIyIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0ZGRkZGRiIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic2giIHg9Ii0yMCUiIHk9Ii0yMCUiIHdpZHRoPSIxNDAlIiBoZWlnaHQ9IjE0MCUiPgogICAgICA8ZmVEcm9wU2hhZG93IGR4PSIwIiBkeT0iMTQiIHN0ZERldmlhdGlvbj0iMTgiIGZsb29kLWNvbG9yPSIjMDAxQTU1IiBmbG9vZC1vcGFjaXR5PSIwLjM1Ii8+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjEwMjQiIGhlaWdodD0iMTAyNCIgZmlsbD0idXJsKCNiZykiLz4KICA8cmVjdCB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiBmaWxsPSJ1cmwoI2dsb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI3NoKSIgZmlsbD0iI0ZGRkZGRiI+CiAgICA8bGluZSB4MT0iMjgyIiB5MT0iNTMwIiB4Mj0iNDUwIiB5Mj0iNzAwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMTI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxjaXJjbGUgY3g9IjQ1MCIgY3k9IjcwMCIgcj0iNzAiLz4KICAgIDxwb2x5Z29uIHBvaW50cz0iNTAyLjksNzQ1LjggMzk3LjEsNjU0LjIgNzQ3LjMsMzEwLjQgNzkyLjcsMzQ5LjYiLz4KICAgIDxjaXJjbGUgY3g9Ijc3MCIgY3k9IjMzMCIgcj0iMzAiLz4KICA8L2c+CiAgPGcgc3Ryb2tlPSIjMUY2Q0YwIiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPGxpbmUgeDE9IjQ4OC40IiB5MT0iNjU1LjYiIHgyPSI1MzMuMiIgeTI9IjYwMy44IiBzdHJva2Utd2lkdGg9IjE3Ii8+CiAgICA8bGluZSB4MT0iNTY1LjIiIHkxPSI1NjYuOCIgeDI9IjYwMC40IiB5Mj0iNTI2LjEiIHN0cm9rZS13aWR0aD0iMTQiLz4KICAgIDxsaW5lIHgxPSI2MjkuMiIgeTE9IjQ5Mi44IiB4Mj0iNjU0LjgiIHkyPSI0NjMuMiIgc3Ryb2tlLXdpZHRoPSIxMSIvPgogICAgPGxpbmUgeDE9IjY4MC40IiB5MT0iNDMzLjYiIHgyPSI2OTkuNiIgeTI9IjQxMS40IiBzdHJva2Utd2lkdGg9IjgiLz4KICA8L2c+Cjwvc3ZnPgo=",alt:"ClearLane app icon",width:"96",height:"96",style:"display:block;margin:0 auto -8px;border-radius:22px;box-shadow:0 8px 24px rgba(0,50,160,.25)"}),h("h2",null,"Welcome to ClearLane"));
+  const fl=h("div",{style:"display:flex;flex-direction:column;gap:22px;max-width:420px;margin:0 auto"});
+  for(const [i,c,t,d] of feats){const f=h("div",{class:"feat",style:`--c:var(--${c})`}); f.append(ic(i),h("div",null,h("b",null,t),h("span",null,d))); fl.append(f);}
+  w.append(fl);
+  const done=()=>{seen=true;save();closeSheet();};
+  w.append(h("div",{class:"foot"},h("button",{type:"button",class:"btn fill",onclick:done},"Continue"),
+    h("button",{type:"button",class:"linkbtn",onclick:()=>{done();loadSample();}},"Try a Sample Trip"),
+    h("p",{class:"fine"},"A guide only, based on Singapore Customs and SFA rules. ICA officers make the final decision.")));
+  openSheet({welcome:true,body:w});
+  sheetClose=done;
+}
+
+function actionSheet(msg,actions){
+  const a=$("asheet"); a.textContent="";
+  const g=h("div",{class:"grp"},h("div",{class:"msg"},msg));
+  for(const x of actions) g.append(h("button",{type:"button",class:x.destructive?"destr":"",onclick:()=>{closeAction();x.fn();}},x.label));
+  a.append(g,h("button",{type:"button",class:"cancel",onclick:closeAction},actions.length?"Cancel":"OK"));
+  $("dim").hidden=false; a.hidden=false;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{$("dim").classList.add("open");a.classList.add("open");}));
+}
+function closeAction(){const a=$("asheet"); a.classList.remove("open"); if(!$("sheet").classList.contains("open")) $("dim").classList.remove("open");
+  setTimeout(()=>{a.hidden=true; if(!$("sheet").classList.contains("open")) $("dim").hidden=true;},400);}
+
+function alertBox(t,m){$("alertT").textContent=t;$("alertM").textContent=m;const a=$("alert");a.hidden=false;$("dim").hidden=false;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{a.classList.add("open");$("dim").classList.add("open");})); $("alertOk").focus();}
+function closeAlert(){const a=$("alert");a.classList.remove("open");$("dim").classList.remove("open");setTimeout(()=>{a.hidden=true;$("dim").hidden=true;},250);}
+$("alertOk").onclick=closeAlert;
+
+let toastT; function toast(msg){const t=$("toast"); t.textContent=""; t.append(ic("check"),h("span",null,msg)); t.classList.add("open"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("open"),2200);}
+
+/* ---------- photos and scanning ---------- */
+function addFiles(list){
+  let skipped=false;
+  for(const f of list){ if(!/^image\//.test(f.type)&&!/\.(heic|heif)$/i.test(f.name)) continue; if(photos.length>=maxPhotos){skipped=true;break;} photos.push({file:f,url:URL.createObjectURL(f)}); }
+  if(skipped) alertBox("Photo limit reached",`You can scan up to ${maxPhotos} photos at a time.`);
+  renderScan();
+}
+$("camIn").onchange=e=>{addFiles(e.target.files);e.target.value="";};
+$("libIn").onchange=e=>{addFiles(e.target.files);e.target.value="";};
+
+async function shrink(file){
+  try{
+    const bmp=await createImageBitmap(file,{imageOrientation:"from-image"});
+    const s=Math.min(1,1600/Math.max(bmp.width,bmp.height)), w=Math.round(bmp.width*s), hh=Math.round(bmp.height*s);
+    const c=document.createElement("canvas"); c.width=w; c.height=hh; c.getContext("2d").drawImage(bmp,0,0,w,hh); bmp.close&&bmp.close();
+    const b=await new Promise(r=>c.toBlob(r,"image/jpeg",.85)); return b||file;
+  }catch(_){return file;}
+}
+const toB64=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(b);});
+
+const PROMPT=`You read photos for a Singapore arrival declaration helper. The photos show shop receipts and/or items a traveller is about to bring into Singapore. List every distinct item you can see (merge duplicates across photos; a receipt line and a photo of the same item count once).
+
+For each item return:
+- "name": short plain name, e.g. "Eggs (2 trays)"
+- "cat": one of eggs, meat, fish, fruitveg, processed, birdnest, liquor, tobacco, prohibited, medicine, goods, other
+- "sub": meat -> beef|mutton|pork|poultry|other ; fish -> fish|crabprawn|oyster ; liquor -> spirits|wine|beer ; prohibited -> gum|vape|chewtob|drugs|wildlife|other ; otherwise ""
+- "qty": a number in this unit: eggs = number of eggs (one tray = 30 unless the photo shows otherwise); meat, fish, fruitveg, processed, birdnest = kilograms (convert grams and litres of food, estimate from pack size if needed); liquor = litres (convert ml); tobacco = cigarette sticks (one pack = 20 unless shown); everything else = number of pieces
+- "value": price in Singapore dollars as a number (estimate the SGD conversion if the receipt is in another currency), or null if unknown
+- "origin": country where it was bought or produced if visible (receipt address, label), else ""
+- "conf": high, medium or low
+- "note": a few words if anything is uncertain, else ""
+
+Classification rules: vapes, e-cigarettes, pods and e-liquid -> prohibited/vape. Chewing gum -> prohibited/gum (unless clearly dental or medicinal gum). Chewing tobacco, shisha, snuff, gutkha -> prohibited/chewtob. Soju and umeshu -> liquor/spirits. Sake -> liquor/wine. Snacks, biscuits, sauces, instant noodles, drinks without alcohol, milk -> processed. Clothes, shoes, electronics, cosmetics, souvenirs -> goods. Bags or items the traveller clearly already owned are not needed. Do not judge legality.
+
+Reply with only JSON in this shape: {"items":[{"name":"","cat":"","sub":"","qty":0,"value":null,"origin":"","conf":"","note":""}]}`;
+
+let scanCtl=null, ovTimer=null;
+function showOverlay(url){
+  $("ovImg").src=url; $("scanov").hidden=false; const msgs=["Reading your photos…","Finding items…","Checking amounts…","Matching against the rules…"]; let i=0;
+  $("ovText").textContent=msgs[0]; clearInterval(ovTimer); ovTimer=setInterval(()=>{i=Math.min(i+1,msgs.length-1);$("ovText").textContent=msgs[i];},2400);
+}
+function hideOverlay(){clearInterval(ovTimer); $("scanov").hidden=true;}
+$("ovCancel").onclick=()=>{ if(scanCtl) scanCtl.abort(); };
+
+async function runScan(){
+  if(!photos.length) return;
+  scanCtl=new AbortController(); const sig=scanCtl.signal;
+  showOverlay(photos[0].url);
+  try{
+    const blobs=await Promise.all(photos.map(p=>shrink(p.file)));
+    let data;
+    if(mode==="claude"){ data=await sampleFn.json(PROMPT,{images:blobs,signal:sig}); }
+    else {
+      const imgs=await Promise.all(blobs.map(async b=>({type:"image/jpeg",data:await toB64(b)})));
+      const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({images:imgs}),signal:sig});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok) throw {code:j.error||"upstream_error",detail:j.message};
+      data=j;
+    }
+    const list=Array.isArray(data&&data.items)?data.items:[];
+    const found=list.filter(x=>x&&typeof x==="object").map(x=>newItem({
+      name:String(x.name||"").slice(0,80), cat:CATS[x.cat]?x.cat:"other",
+      sub:SUBS[x.cat]&&SUBS[x.cat].some(s=>s[0]===x.sub)?x.sub:(SUBS[x.cat]?SUBS[x.cat][0][0]:""),
+      qty:Number.isFinite(+x.qty)?+x.qty:1, value:x.value==null||x.value===""||!Number.isFinite(+x.value)?null:+x.value,
+      origin:String(x.origin||"").slice(0,40), conf:["high","medium","low"].includes(x.conf)?x.conf:"medium", note:String(x.note||"").slice(0,140)}));
+    hideOverlay();
+    if(!found.length){ alertBox("No Items Found","Try a clearer photo with the whole receipt in view, or add items yourself."); return; }
+    items=items.concat(found); photos.forEach(p=>URL.revokeObjectURL(p.url)); photos=[]; save(); renderAll();
+    toast(`Found ${found.length} item${found.length>1?"s":""}`);
+  }catch(e){
+    hideOverlay();
+    const code=(e&&(e.code||e.name))||"";
+    if(code==="cancelled"||code==="AbortError") return;
+    const M={not_granted:["Scanning Not Allowed","ClearLane needs permission to use Claude to read photos. You can still add items yourself."],
+      rate_limited:["Too Many Scans","Please wait a minute and try again."],image_rejected:["Photo Can't Be Read","Try a different photo in JPG or PNG format."],
+      invalid_json:["Scan Unclear","The AI's answer couldn't be read. Tap Scan again."],session_expired:["Signed Out","Sign in to Claude again, then retry."],
+      not_configured:["AI Not Set Up","Add GEMINI_API_KEY in your Netlify site settings, then redeploy."],image_too_large:["Photo Too Large","Try fewer photos, or a smaller one."]};
+    const [t,m]=M[code]||["Scan Didn't Finish","Check your connection and try again, or add items yourself."+(e&&e.detail?" ("+e.detail+")":"")];
+    alertBox(t,m);
+    if(["not_granted","sampling_disabled","images_unavailable"].includes(code)){mode="none";renderScan();}
+  }finally{scanCtl=null;}
+}
+
+/* ---------- sample + boot ---------- */
+function loadSample(){
+  trip=Object.assign(trip,{trav:1,ge48:0,fromMY:1,adult:1,pass:0}); syncTrip();
+  items=[
+    newItem({name:"Eggs, 2 trays",cat:"eggs",qty:60,value:22,origin:"Malaysia",note:"Sample item"}),
+    newItem({name:"Whisky 700 ml",cat:"liquor",sub:"spirits",qty:0.7,value:48,note:"Sample item"}),
+    newItem({name:"Chewing gum",cat:"prohibited",sub:"gum",qty:1,value:2,note:"Sample item"}),
+    newItem({name:"Vape pen",cat:"prohibited",sub:"vape",qty:1,value:25,note:"Sample item"}),
+    newItem({name:"Frozen chicken",cat:"meat",sub:"poultry",qty:1,value:9,origin:"Malaysia",note:"Sample item"}),
+    newItem({name:"Biscuits and snacks",cat:"processed",qty:1.2,value:18,note:"Sample item"}),
+    newItem({name:"Running shoes",cat:"goods",qty:1,value:160,note:"Sample item"})
+  ];
+  save(); renderAll(); toast("Sample trip loaded");
+}
+function renderAll(){renderScan();renderResults();}
+
+async function detect(){
+  try{
+    if(window.claude&&typeof window.claude.use==="function"){
+      const s=await window.claude.use("sample");
+      if(s){const lim=await s.limits().catch(()=>null); if(lim&&lim.images){sampleFn=s; maxPhotos=Math.max(1,Math.min(5,lim.images.maxCount||5)); mode="claude"; renderScan(); return;}}
+    }
+  }catch(_){}
+  try{
+    const r=await fetch(API,{method:"GET",cache:"no-store"});
+    if(r.ok){const j=await r.json(); mode=j&&j.ready?"server":"notcfg"; maxPhotos=3; renderScan(); return;}
+  }catch(_){}
+  mode="none"; renderScan();
+}
+
+syncTrip(); go("scan"); renderAll(); detect();
+if(!seen) setTimeout(showWelcome,350);
+})();
+</script>
+<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+</body></html>

@@ -43,19 +43,32 @@ export default async (req) => {
   }
 
   const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-  const generationConfig = { temperature: 0.2, response_mime_type: "application/json" };
-  if (/2\.5-flash/i.test(model)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
-
-  let r, j;
-  try {
-    r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  // Keep "thinking" to a minimum so the answer arrives within Netlify's 10-second limit.
+  const fast = /2\.5/.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: "minimal" };
+  const call = (thinkingConfig) => {
+    const generationConfig = { temperature: 0.2, response_mime_type: "application/json" };
+    if (thinkingConfig) generationConfig.thinkingConfig = thinkingConfig;
+    return fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig }),
+      signal: AbortSignal.timeout(9000),
     });
+  };
+
+  let r, j;
+  try {
+    r = await call(fast);
     j = await r.json().catch(() => null);
-  } catch {
-    return json({ error: "upstream_error", message: "Could not reach the AI service." }, 502);
+    // If this model doesn't accept the speed setting, try once more without it.
+    if (r.status === 400 && /thinking/i.test(j?.error?.message || "")) {
+      r = await call(null);
+      j = await r.json().catch(() => null);
+    }
+  } catch (e) {
+    const slow = e?.name === "TimeoutError" || e?.name === "AbortError";
+    return json({ error: slow ? "too_slow" : "upstream_error", message: slow ? "The AI took too long. Try one clear photo." : "Could not reach the AI service." }, 504);
   }
   if (!r.ok) {
     const msg = String(j?.error?.message || "").slice(0, 200);

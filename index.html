@@ -756,7 +756,7 @@ async function runScan(){
       const imgs=await Promise.all(blobs.map(async b=>({type:"image/jpeg",data:await toB64(b)})));
       const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({images:imgs}),signal:sig});
       const j=await r.json().catch(()=>({}));
-      if(!r.ok) throw {code:j.error||"upstream_error",detail:j.message};
+      if(!r.ok) throw {code:j.error||(r.status>=500?"too_slow":"upstream_error"),detail:j.message};
       data=j;
     }
     const list=Array.isArray(data&&data.items)?data.items:[];
@@ -776,7 +776,7 @@ async function runScan(){
     const M={not_granted:["Scanning Not Allowed","ClearLane needs permission to use Claude to read photos. You can still add items yourself."],
       rate_limited:["Too Many Scans","Please wait a minute and try again."],image_rejected:["Photo Can't Be Read","Try a different photo in JPG or PNG format."],
       invalid_json:["Scan Unclear","The AI's answer couldn't be read. Tap Scan again."],session_expired:["Signed Out","Sign in to Claude again, then retry."],
-      not_configured:["AI Not Set Up","Add GEMINI_API_KEY in your Netlify site settings, then redeploy."],image_too_large:["Photo Too Large","Try fewer photos, or a smaller one."]};
+      not_configured:["AI Not Set Up","Add GEMINI_API_KEY in your Netlify site settings, then redeploy."],image_too_large:["Photo Too Large","Try fewer photos, or a smaller one."],too_slow:["Scan Took Too Long","The AI needed more time than the free server allows. Try again with one clear, close-up photo."]};
     const [t,m]=M[code]||["Scan Didn't Finish","Check your connection and try again, or add items yourself."+(e&&e.detail?" ("+e.detail+")":"")];
     alertBox(t,m);
     if(["not_granted","sampling_disabled","images_unavailable"].includes(code)){mode="none";renderScan();}
